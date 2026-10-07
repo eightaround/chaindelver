@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; base-uri 'none'; form-action 'none'">
+<meta charset="utf-8">
+<title>ChainDelver</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif;}
+body{width:1280px;height:720px;background:#13101c;color:#eae6f5;overflow:hidden;}
+header{padding:16px 28px;border-bottom:1px solid #2c2640;display:flex;justify-content:space-between;align-items:center;}
+header h1{color:#b991ff;font-size:24px;}
+header p{color:#9a93b8;font-size:13px;margin-top:2px;}
+nav{display:flex;gap:10px;padding:12px 28px;border-bottom:1px solid #2c2640;}
+nav button{background:#1e1930;border:1px solid #3a3256;color:#cfc8e8;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:14px;}
+nav button.active{background:#7c4dff;color:#fff;border-color:#7c4dff;}
+main{padding:20px 28px;height:560px;}
+.row{display:flex;gap:20px;}
+.card{background:#1c1730;border:1px solid #2c2640;border-radius:12px;padding:16px;}
+#wallet-area{width:260px;}
+#wallet-btn{width:100%;background:#7c4dff;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;}
+#char-panel{margin-top:14px;}
+#char-panel h3{color:#b991ff;font-size:14px;margin-bottom:8px;}
+.stat{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#cfc8e8;}
+.dungeon-box{flex:1;}
+.dungeon-art{display:flex;gap:6px;margin-bottom:14px;}
+.tile{width:50px;height:50px;background:#2c2342;border:1px solid #453a66;border-radius:6px;}
+.tile.door{background:#5c3c82;}
+#delve-btn{background:#9b5de5;color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:14px;cursor:pointer;}
+#delve-btn:disabled{background:#4a4360;cursor:default;}
+#event-log{margin-top:12px;font-size:13px;color:#d8d2ef;min-height:20px;}
+#trophy-panel{margin-top:14px;background:#2a1f45;border:1px solid #7c4dff;border-radius:10px;padding:12px;}
+#trophy-panel h4{color:#ffd166;font-size:13px;margin-bottom:6px;}
+#trophy-panel p{font-size:12px;color:#d8d2ef;}
+#leaderboard-view ul{list-style:none;}
+#leaderboard-view li{padding:10px 14px;border-bottom:1px solid #2c2640;font-size:14px;display:flex;justify-content:space-between;}
+#leaderboard-view li:first-child{color:#ffd166;font-weight:bold;}
+footer{position:absolute;bottom:6px;left:28px;font-size:11px;color:#6b6485;}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>ChainDelver</h1>
+    <p>A provably-fair roguelike dungeon crawler, permanently on-chain</p>
+  </div>
+</header>
+<nav>
+  <button id="tab-dungeon" data-demo="tab-dungeon" class="active" onclick="showTab('dungeon')">Dungeon</button>
+  <button id="tab-leaderboard" data-demo="tab-leaderboard" onclick="showTab('leaderboard')">Leaderboard</button>
+</nav>
+<main>
+  <div id="dungeon-view" class="row">
+    <div id="wallet-area" class="card">
+      <button id="wallet-btn" data-demo="wallet-btn" onclick="connectWallet()">Connect Wallet</button>
+      <div id="char-panel" data-demo="char-panel" hidden>
+        <h3>Delver #0412 (NFT)</h3>
+        <div class="stat"><span>Level</span><span>3</span></div>
+        <div class="stat"><span>Depth</span><span id="stat-depth">5</span></div>
+        <div class="stat"><span>HP</span><span>40/40</span></div>
+        <div class="stat"><span>Gold</span><span id="stat-gold">120</span></div>
+      </div>
+    </div>
+    <div class="dungeon-box card">
+      <div class="dungeon-art">
+        <div class="tile"></div><div class="tile"></div><div class="tile door"></div><div class="tile"></div><div class="tile"></div>
+      </div>
+      <button id="delve-btn" data-demo="delve-btn" onclick="delve()">Delve Deeper</button>
+      <div id="event-log" data-demo="event-log">Awaiting your next move, delver...</div>
+      <div id="trophy-panel" data-demo="trophy-panel" hidden>
+        <h4>🏆 Trophy NFT Minted</h4>
+        <p>Final Depth: 6 • Level 3 • Gold 170</p>
+        <p>Stored permanently on Solana — provable forever.</p>
+      </div>
+    </div>
+  </div>
+  <div id="leaderboard-view" data-demo="leaderboard-view" hidden>
+    <div class="card">
+      <ul>
+        <li id="leaderboard-player-entry" data-demo="leaderboard-player-entry">1. CryptoDelver88 — Depth 9</li>
+        <li>2. VoidWalker — Depth 7</li>
+        <li>3. You — Depth 5</li>
+        <li>4. OnChainOgre — Depth 4</li>
+      </ul>
+    </div>
+  </div>
+</main>
+<footer>Prototype — all data is simulated</footer>
+<script>
+let delveStep = 0;
+function connectWallet(){
+  document.getElementById('wallet-btn').textContent = 'Connected: 7xK...9fQ';
+  document.getElementById('char-panel').hidden = false;
+}
+function delve(){
+  delveStep++;
+  const log = document.getElementById('event-log');
+  if(delveStep===1){
+    log.textContent = 'VRF roll: 42... Loot found! +50 Gold, Depth 6 unlocked.';
+    document.getElementById('stat-depth').textContent = '6';
+    document.getElementById('stat-gold').textContent = '170';
+  } else if(delveStep===2){
+    log.textContent = 'VRF roll: 7... A grue appears! Your delver has fallen.';
+    document.getElementById('trophy-panel').hidden = false;
+    document.getElementById('delve-btn').disabled = true;
+    document.getElementById('delve-btn').textContent = 'Run Ended';
+    document.getElementById('leaderboard-player-entry').innerHTML = '1. You — Depth 6 🏆';
+  }
+}
+function showTab(tab){
+  document.getElementById('dungeon-view').hidden = tab !== 'dungeon';
+  document.getElementById('leaderboard-view').hidden = tab !== 'leaderboard';
+  document.getElementById('tab-dungeon').classList.toggle('active', tab === 'dungeon');
+  document.getElementById('tab-leaderboard').classList.toggle('active', tab === 'leaderboard');
+}
+</script>
+</body>
+</html>
